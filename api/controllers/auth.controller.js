@@ -145,7 +145,9 @@ export const isVerifiedUser = async (req, res, next) => {
 
 export const getUser = async (req, res) => {
   try {
-    const user = await Auth.findById(req.user.id).select("-password");
+    const user = await Auth.findById(req.user.id)
+      .populate("college")
+      .select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -167,6 +169,24 @@ export const signout = async (req, res) => {
   }
 };
 
-//  get user of particular college for admin:
+export const updateProfile = async (req, res) => {
+  try {
+    const { userName } = req.body;
+    const user = await Auth.findByIdAndUpdate(
+      req.user.id,
+      { $set: { userName } },
+      { new: true },
+    ).select("-password");
 
-//  delete user by admin:
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      data: user,
+    });
+  } catch (err) {
+    return res.status(500).json({ message: err.message });
+  }
+};

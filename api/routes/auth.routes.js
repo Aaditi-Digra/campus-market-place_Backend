@@ -5,6 +5,7 @@ import {
   getUser,
   signout,
   isVerifiedUser,
+  updateProfile,
 } from "../controllers/auth.controller.js";
 import { isAdmin, protect } from "../middlewares/auth.middleware.js";
 import express from "express";
@@ -14,6 +15,7 @@ const router = express.Router();
 router.post("/signup", signup);
 router.post("/signin", signin);
 router.get("/get-user", protect, getUser);
+router.put("/update-profile", protect, updateProfile);
 router.post("/signout", signout);
 
 //  admin:
