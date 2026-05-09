@@ -87,3 +87,96 @@ export const getMyListing = async (req, res, next) => {
     });
   }
 };
+// update:
+export const markAsSold = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findOneAndUpdate(
+      { _id: id, seller: req.user.id },
+      { inStock: false },
+      { new: true }
+    );
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found or unauthorized",
+      });
+    }
+    return res.status(200).json({
+      message: "Product marked as sold successfully",
+      data: product,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+export const updateProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { title, description, price, quantity, category, inStock } = req.body;
+    
+    let updateData = {
+      title,
+      description,
+      price,
+      quantity,
+      category,
+      inStock
+    };
+
+    if (req.files && req.files.length > 0) {
+      const images = req.files.map((file) => ({
+        url: file.path,
+        public_id: file.filename,
+      }));
+      updateData.images = images;
+    }
+
+    const product = await Product.findOneAndUpdate(
+      { _id: id, seller: req.user.id },
+      updateData,
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found or unauthorized",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Product updated successfully",
+      data: product,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+export const deleteProduct = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findOneAndDelete({
+      _id: id,
+      seller: req.user.id,
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product not found or unauthorized",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Product deleted successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message,
+    });
+  }
+};
