@@ -52,11 +52,16 @@ export const getAllProducts = async (req, res, next) => {
     if (token) {
       const decoded = await jwt.verify(token, process.env.JWT_SECRET);
       filters.seller = { $ne: decoded.id };
+      // Filter by the student's college
+      if (decoded.college) {
+        filters.college = decoded.college;
+      }
     }
-    const products = await Product.find(filters);
-    if (!products && products.length === 0) {
-      return res.status(404).json({
-        message: "No products Available",
+    const products = await Product.find(filters).populate("college", "collegeName");
+    if (!products || products.length === 0) {
+      return res.status(200).json({
+        message: "No products Available for your college",
+        data: [],
       });
     }
     return res.status(200).json({
@@ -75,9 +80,11 @@ export const getMyListing = async (req, res, next) => {
     let filter = {
       seller: req.user.id,
     };
-    const products = await Product.find(filter).sort({
-      createdAt: -1,
-    });
+    const products = await Product.find(filter)
+      .populate("college", "collegeName")
+      .sort({
+        createdAt: -1,
+      });
     return res.status(200).json({
       data: products,
     });
