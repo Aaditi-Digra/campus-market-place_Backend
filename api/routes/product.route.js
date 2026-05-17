@@ -6,6 +6,7 @@ import {
   markAsSold,
   updateProduct,
   deleteProduct,
+  getProductById,
 } from "../controllers/products.controller.js";
 import upload from "../middlewares/multer.js";
 import { isUser, protect } from "../middlewares/auth.middleware.js";
@@ -21,6 +22,7 @@ router.post(
 );
 router.get("/get-all", getAllProducts);
 router.get("/get-myListing", protect, isUser, getMyListing);
+router.get("/get/:id", getProductById);
 router.patch("/mark-as-sold/:id", protect, isUser, markAsSold);
 router.put(
   "/update/:id",
@@ -32,3 +34,4 @@ router.put(
 router.delete("/delete/:id", protect, isUser, deleteProduct);
 
 export default router;
+
